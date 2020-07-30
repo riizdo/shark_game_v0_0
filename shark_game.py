@@ -1,4 +1,4 @@
-import pygame, sys, os, pnj, menu, random
+import pygame, sys, os, pnj, menu
 from pygame.locals import *
 
 class MainApp():
@@ -13,10 +13,16 @@ class MainApp():
         
         self.__enemy = []
         self.__enemy.append(pnj.Stripe())
+        self.__enemy.append(pnj.Stripe())
+        self.__enemy.append(pnj.Stripe())
+        self.__enemy.append(pnj.Turtle())
         self.__player = pnj.Shark()
+        self.__player.setPlayer()
         
         self.__player.pos(int((self.__merge[0] + self.__merge[2]) / 2), (self.__merge[1] + self.__merge[3]) - self.__player.getRect()[3])
         self.__enemy[0].pos(500, 100)
+        
+        self.__menu = menu.Menu()
         
         
     def __str__(self):
@@ -51,18 +57,28 @@ class MainApp():
     def __getCollisionObject(self, object1, object2):
         rect1 = object1.getRect()
         rect2 = object2.getRect()
+        obj1 = {'up': rect1[1], 'down': rect1[1] + rect1[3], 'left': rect1[0], 'right': rect1[0] + rect1[2]}
+        obj2 = {'up': rect2[1], 'down': rect2[1] + rect2[3], 'left': rect2[0], 'right': rect2[0] + rect2[2]}
+        
         collision = {'up': False, 'down': False, 'left': False, 'right': False}
         
-        if (rect1[0] < rect2[0] + rect2[2] and rect1[0] > rect2[0] and
-            ((rect1[1] < rect2[1] + rect2[3] and rect1[1] > rect2[1]) or
-             (rect1[1] + rect1[3] > rect2[1] and rect1[1] + rect1[3] < rect2[1] + rect2[3]))):
-            collision['left'] = True
-        if (rect1[0] + rect1[2] > rect2[0] and rect1[0] + rect1[2] < rect2[0] + rect2[2] and
-            ((rect1[1] < rect2[1] + rect2[3] and rect1[1] > rect2[1]) or
-             (rect1[1] + rect1[3] > rect2[1] and rect1[1] + rect1[3] < rect2[1] + rect2[3]))):
-            collision['right'] = True
+        if obj1['up'] < obj2['down'] and obj1['up'] > obj2['up'] and self.__collisionPart('up', obj1, obj2):
+            collision['up'] = True
+           
         
         return collision
+    
+    
+    def __collisionPart(self, part, object1, object2):
+        if part == 'up' or part == 'down':
+            if (object1['left'] > object2['left'] and object1['left'] < object2['right'])\
+               or (object1['right'] < object2['right'] and object1['right'] > object2['left'])\
+               or (object1['left'] < object2['left'] and object1['right'] > object2['right'])\
+               or (object1['left'] > object2['left'] and object1['right'] < object2['right']):
+                return True
+        if part == 'left' or part == 'right':
+            pass
+            
         
         
     def start(self):
@@ -96,7 +112,7 @@ class MainApp():
                         move['x'] = -1
                         left = True
                     elif event.key == K_SPACE:
-                        print('shark rect {}, turtle rect {} collision {}'.format(self.__player.getRect(),
+                        print('shark rect {}, enemy rect {} collision {}'.format(self.__player.getRect(),
                                                                                   self.__enemy[0].getRect(), collision))
                 if event.type == pygame.KEYUP:#key release events
                     if event.key == K_UP:
@@ -133,15 +149,21 @@ class MainApp():
             if collision['merge']['right'] and move['x'] > 0:
                 move['x'] = 0
                 
-            if collision['enemy0']['left'] or collision['enemy0']['right']:#comprove if player collision of enemy
-                print(collision)
+            if collision['enemy0']['left'] \
+               or collision['enemy0']['right']\
+               or collision['enemy0']['up']\
+               or collision['enemy0']['down']:#comprove if player collision of enemy
+                #print(collision)
+                pass
                 
             self.__player.move(move['x'], move['y'])#move the player
                     
             self.__screen.fill((0,0,200))#color of background
             
-            self.__screen.blit(self.__enemy[0].getImage(), self.__enemy[0].pos())#enemy image
-            
+            for enemy in self.__enemy:
+                enemy.move()
+                self.__screen.blit(enemy.getImage(), enemy.pos())#enemy image
+                
             self.__screen.blit(self.__player.getImage(), self.__player.pos())#player image
                     
             pygame.display.flip()#refresh screen

@@ -1,4 +1,4 @@
-import pygame, timeit
+import pygame, random
 from pygame.locals import *
 
 
@@ -19,10 +19,8 @@ class Pnj:
         self.__currentPose = 0
         self.__colour = ''
         self.__controlTime = float(self.__controlTime)
-        
-        if type != None:
-            self.__type = type
-            self.chargeImages(self.__type)
+        self.__player = False
+        self.__type = ''
             
             
     def __str__(self):#method of string output
@@ -45,6 +43,10 @@ class Pnj:
             self.__name = name
             
             
+    def setPlayer(self):
+        self.__player = True
+            
+            
     def seconds(self, seconds = None):
         if seconds == None:
             return self.seconds
@@ -61,9 +63,14 @@ class Pnj:
             self.__position['y'] = y
             
             
-    def move(self, x, y):
-        self.__position['x'] += x
-        self.__position['y'] += y
+    def move(self, x = None, y = None):
+        if x != None:
+            self.__position['x'] += x
+            if y != None:
+                self.__position['y'] += y
+        if not self.__player:
+            self.__position['x'] += random.randint(-1, 1)
+            self.__position['y'] += random.randint(-1, 1)
             
             
     def __selectPose(self):
@@ -134,7 +141,7 @@ class Shark(Pnj):
     def __init__(self):#constructor of subclass
         Pnj.__init__(self)
         self.__type = 'shark'
-        self.seconds = 80
+        self.seconds = 40
         
         self.chargeImages(self.__type)
     
