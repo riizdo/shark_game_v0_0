@@ -1,4 +1,4 @@
-import pygame, random
+import pygame, random, menu
 from pygame.locals import *
 
 
@@ -17,7 +17,7 @@ class Pnj:
         self.__name = ''
         self.__previusPose = 0
         self.__currentPose = 0
-        self.__colour = ''
+        self.__color = ''
         self.__controlTime = float(self.__controlTime)
         self.__player = False
         self.__type = ''
